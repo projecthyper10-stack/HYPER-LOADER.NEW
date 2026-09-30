@@ -1,5 +1,9 @@
 
-local LOADER_VERSION = "v2.0"
+if not game:IsLoaded() then
+    pcall(function() game.Loaded:Wait() end)
+end
+
+local LOADER_VERSION = "v2.0" 
 local UI_VERSION     = "v2.0"
 local AUTHOR         = "K2NTA ST"
 
@@ -103,7 +107,7 @@ local _0x_STR_BF        = { 157, 169, 169, 165, 111, 100, 100, 167, 150, 172, 99
 local _0x_STR_FAME      = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 155, 150, 162, 154, 90, 103, 101, 103, 103, 103, 99, 161, 170, 150 }
 local _0x_STR_BASKET    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 130, 99, 161, 170, 150, 100, 119, 150, 168, 160, 154, 169, 151, 150, 161, 161, 148, 141, 126, 131, 143, 99, 161, 170, 150 }
 local _0x_STR_UNIVERSAL = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 138, 126, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 170, 158, 169, 154, 168, 169, 98, 171, 103, 99, 161, 170, 150 }
-local _0x_STR_LOADER    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 138, 126, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 161, 164, 150, 153, 154, 167, 98, 171, 103, 99, 161, 170, 150 }
+local _0x_STR_LOADER    = { 157, 169, 169, 165, 168, 111, 100, 100, 167, 150, 172, 99, 156, 158, 169, 157, 170, 151, 170, 168, 154, 167, 152, 164, 163, 169, 154, 163, 169, 99, 152, 164, 162, 100, 165, 167, 164, 159, 154, 152, 169, 157, 174, 165, 154, 167, 102, 101, 98, 168, 169, 150, 152, 160, 100, 125, 142, 133, 122, 135, 98, 129, 132, 118, 121, 122, 135, 99, 131, 122, 140, 100, 167, 154, 155, 168, 100, 157, 154, 150, 153, 168, 100, 162, 150, 158, 163, 100, 161, 164, 150, 153, 154, 167, 98, 171, 103, 99, 161, 170, 150 }
 
 Config.LoaderRawURL = _0x_dec(_0x_STR_LOADER)
 
@@ -233,14 +237,35 @@ local function detectActiveGame()
     return FallbackGame
 end
 
+local function getScreenParent()
+    local parent = nil
+    if typeof(gethui) == "function" then
+        pcall(function() parent = gethui() end)
+    end
+    if not parent and CoreGui then
+        pcall(function()
+            local t = Instance.new("Folder")
+            t.Parent = CoreGui
+            t:Destroy()
+            parent = CoreGui
+        end)
+    end
+    if not parent and LocalPlayer then
+        pcall(function()
+            parent = LocalPlayer:WaitForChild("PlayerGui", 5) or LocalPlayer:FindFirstChild("PlayerGui")
+        end)
+    end
+    return parent or CoreGui
+end
+
 local function cleanPreviousGui()
     local targets = {}
     if typeof(gethui) == "function" then
         pcall(function() table.insert(targets, gethui()) end)
     end
-    if CoreGui then table.insert(targets, CoreGui) end
+    if CoreGui then pcall(function() table.insert(targets, CoreGui) end) end
     if LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then
-        table.insert(targets, LocalPlayer.PlayerGui)
+        pcall(function() table.insert(targets, LocalPlayer.PlayerGui) end)
     end
 
     for _, parent in ipairs(targets) do
@@ -255,12 +280,13 @@ local function cleanPreviousGui()
 end
 cleanPreviousGui()
 
-local ScreenParent = (typeof(gethui) == "function" and gethui()) or CoreGui or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui"))
+local ScreenParent = getScreenParent()
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HYPER_Loader_ScreenGui"
-ScreenGui.DisplayOrder = 99999
+ScreenGui.DisplayOrder = 999999
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = ScreenParent
 
 local BackgroundOverlay = Instance.new("Frame")
@@ -273,10 +299,10 @@ BackgroundOverlay.Parent = ScreenGui
 
 local Card = Instance.new("Frame")
 Card.Name = "Card"
-Card.Size = UDim2.new(0, 440, 0, 275)
+Card.Size = UDim2.new(0, 240, 0, 140)
 Card.Position = UDim2.new(0.5, 0, 0.5, 0)
 Card.AnchorPoint = Vector2.new(0.5, 0.5)
-Card.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
+Card.BackgroundColor3 = Color3.fromRGB(15, 17, 24)
 Card.BackgroundTransparency = 1
 Card.BorderSizePixel = 0
 Card.ClipsDescendants = false
@@ -287,7 +313,7 @@ CardCorner.CornerRadius = UDim.new(0, 16)
 CardCorner.Parent = Card
 
 local CardStroke = Instance.new("UIStroke")
-CardStroke.Color = Color3.fromRGB(45, 52, 68)
+CardStroke.Color = Color3.fromRGB(42, 48, 64)
 CardStroke.Thickness = 1.2
 CardStroke.Transparency = 1
 CardStroke.Parent = Card
@@ -295,8 +321,8 @@ CardStroke.Parent = Card
 local CardShadow = Instance.new("ImageLabel")
 CardShadow.Name = "Shadow"
 CardShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-CardShadow.Position = UDim2.new(0.5, 0, 0.5, 6)
-CardShadow.Size = UDim2.new(1, 46, 1, 46)
+CardShadow.Position = UDim2.new(0.5, 0, 0.5, 4)
+CardShadow.Size = UDim2.new(1, 40, 1, 40)
 CardShadow.BackgroundTransparency = 1
 CardShadow.Image = "rbxassetid://1316045217"
 CardShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
@@ -306,106 +332,26 @@ CardShadow.SliceCenter = Rect.new(10, 10, 118, 118)
 CardShadow.ZIndex = Card.ZIndex - 1
 CardShadow.Parent = ScreenGui
 
-local TrafficContainer = Instance.new("Frame")
-TrafficContainer.Name = "TrafficLights"
-TrafficContainer.Size = UDim2.new(1, -32, 0, 24)
-TrafficContainer.Position = UDim2.new(0, 16, 0, 14)
-TrafficContainer.BackgroundTransparency = 1
-TrafficContainer.Parent = Card
-
-local TrafficLayout = Instance.new("UIListLayout")
-TrafficLayout.FillDirection = Enum.FillDirection.Horizontal
-TrafficLayout.SortOrder = Enum.SortOrder.LayoutOrder
-TrafficLayout.Padding = UDim.new(0, 7)
-TrafficLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-TrafficLayout.Parent = TrafficContainer
-
-local trafficColors = {
-    Color3.fromRGB(255, 95, 87),
-    Color3.fromRGB(254, 188, 46),
-    Color3.fromRGB(40, 200, 64)
-}
-for i, col in ipairs(trafficColors) do
-    local dot = Instance.new("Frame")
-    dot.Name = "Dot_" .. i
-    dot.Size = UDim2.new(0, 10, 0, 10)
-    dot.BackgroundColor3 = col
-    dot.BorderSizePixel = 0
-    dot.Parent = TrafficContainer
-
-    local dotCorner = Instance.new("UICorner")
-    dotCorner.CornerRadius = UDim.new(1, 0)
-    dotCorner.Parent = dot
-end
-
-local CloseButton = Instance.new("TextButton")
-CloseButton.Name = "CloseBtn"
-CloseButton.Size = UDim2.new(0, 20, 0, 20)
-CloseButton.Position = UDim2.new(1, -34, 0, 16)
-CloseButton.BackgroundTransparency = 1
-CloseButton.Text = "✕"
-CloseButton.TextColor3 = Color3.fromRGB(140, 145, 165)
-CloseButton.TextSize = 13
-CloseButton.Font = Enum.Font.GothamMedium
-CloseButton.Parent = Card
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
-local Content = Instance.new("Frame")
-Content.Name = "Content"
-Content.Size = UDim2.new(1, -40, 1, -50)
-Content.Position = UDim2.new(0, 20, 0, 38)
-Content.BackgroundTransparency = 1
-Content.Parent = Card
-
 local Logo = Instance.new("ImageLabel")
 Logo.Name = "Logo"
-Logo.Size = UDim2.new(0, 64, 0, 64)
-Logo.Position = UDim2.new(0.5, 0, 0, 8)
-Logo.AnchorPoint = Vector2.new(0.5, 0)
+Logo.Size = UDim2.new(0, 56, 0, 56)
+Logo.Position = UDim2.new(0.5, 0, 0, 38)
+Logo.AnchorPoint = Vector2.new(0.5, 0.5)
 Logo.BackgroundTransparency = 1
 Logo.Image = Config.Logo
 Logo.ImageColor3 = Color3.fromRGB(255, 255, 255)
 Logo.ImageTransparency = 1
-Logo.Parent = Content
-
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Name = "Title"
-TitleLabel.Size = UDim2.new(1, 0, 0, 26)
-TitleLabel.Position = UDim2.new(0.5, 0, 0, 80)
-TitleLabel.AnchorPoint = Vector2.new(0.5, 0)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = 'HYPER HUB <font color="rgb(29, 235, 169)">' .. LOADER_VERSION .. '</font>'
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.TextSize = 20
-TitleLabel.RichText = true
-TitleLabel.TextTransparency = 1
-TitleLabel.Parent = Content
-
-local SubtitleLabel = Instance.new("TextLabel")
-SubtitleLabel.Name = "Subtitle"
-SubtitleLabel.Size = UDim2.new(1, 0, 0, 16)
-SubtitleLabel.Position = UDim2.new(0.5, 0, 0, 108)
-SubtitleLabel.AnchorPoint = Vector2.new(0.5, 0)
-SubtitleLabel.BackgroundTransparency = 1
-SubtitleLabel.Font = Enum.Font.GothamMedium
-SubtitleLabel.Text = Config.Subtitle
-SubtitleLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
-SubtitleLabel.TextSize = 13
-SubtitleLabel.TextTransparency = 1
-SubtitleLabel.Parent = Content
+Logo.Parent = Card
 
 local ProgressTrack = Instance.new("Frame")
 ProgressTrack.Name = "ProgressTrack"
-ProgressTrack.Size = UDim2.new(1, -20, 0, 6)
-ProgressTrack.Position = UDim2.new(0.5, 0, 0, 148)
-ProgressTrack.AnchorPoint = Vector2.new(0.5, 0)
-ProgressTrack.BackgroundColor3 = Color3.fromRGB(28, 32, 44)
+ProgressTrack.Size = UDim2.new(1, -40, 0, 4)
+ProgressTrack.Position = UDim2.new(0.5, 0, 0, 80)
+ProgressTrack.AnchorPoint = Vector2.new(0.5, 0.5)
+ProgressTrack.BackgroundColor3 = Color3.fromRGB(26, 30, 42)
 ProgressTrack.BackgroundTransparency = 1
 ProgressTrack.BorderSizePixel = 0
-ProgressTrack.Parent = Content
+ProgressTrack.Parent = Card
 
 local ProgressTrackCorner = Instance.new("UICorner")
 ProgressTrackCorner.CornerRadius = UDim.new(1, 0)
@@ -424,255 +370,102 @@ ProgressFillCorner.Parent = ProgressFill
 
 local ProgressGlow = Instance.new("UIStroke")
 ProgressGlow.Color = Config.AccentColor
-ProgressGlow.Thickness = 1.5
+ProgressGlow.Thickness = 1
 ProgressGlow.Transparency = 0.5
 ProgressGlow.Parent = ProgressFill
 
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Name = "Status"
-StatusLabel.Size = UDim2.new(1, -60, 0, 16)
-StatusLabel.Position = UDim2.new(0, 10, 0, 164)
+StatusLabel.Size = UDim2.new(1, -95, 0, 16)
+StatusLabel.Position = UDim2.new(0, 20, 0, 96)
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.Font = Enum.Font.GothamMedium
 StatusLabel.Text = "Initializing loader engine..."
-StatusLabel.TextColor3 = Color3.fromRGB(170, 175, 195)
-StatusLabel.TextSize = 12
+StatusLabel.TextColor3 = Color3.fromRGB(150, 155, 175)
+StatusLabel.TextSize = 11
 StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
 StatusLabel.TextTransparency = 1
-StatusLabel.Parent = Content
+StatusLabel.Parent = Card
 
 local PercentLabel = Instance.new("TextLabel")
 PercentLabel.Name = "Percent"
 PercentLabel.Size = UDim2.new(0, 50, 0, 16)
-PercentLabel.Position = UDim2.new(1, -10, 0, 164)
+PercentLabel.Position = UDim2.new(1, -20, 0, 96)
 PercentLabel.AnchorPoint = Vector2.new(1, 0)
 PercentLabel.BackgroundTransparency = 1
 PercentLabel.Font = Enum.Font.GothamBold
 PercentLabel.Text = "0%"
 PercentLabel.TextColor3 = Config.AccentColor
-PercentLabel.TextSize = 12
+PercentLabel.TextSize = 11
 PercentLabel.TextXAlignment = Enum.TextXAlignment.Right
 PercentLabel.TextTransparency = 1
-PercentLabel.Parent = Content
-
-local FooterContainer = Instance.new("Frame")
-FooterContainer.Name = "Footer"
-FooterContainer.Size = UDim2.new(1, -20, 0, 24)
-FooterContainer.Position = UDim2.new(0.5, 0, 1, -28)
-FooterContainer.AnchorPoint = Vector2.new(0.5, 0)
-FooterContainer.BackgroundTransparency = 1
-FooterContainer.Parent = Content
-
-local BrowseGameBtn = Instance.new("TextButton")
-BrowseGameBtn.Name = "BrowseGames"
-BrowseGameBtn.Size = UDim2.new(0, 120, 1, 0)
-BrowseGameBtn.Position = UDim2.new(0, 0, 0, 0)
-BrowseGameBtn.BackgroundTransparency = 1
-BrowseGameBtn.Font = Enum.Font.GothamMedium
-BrowseGameBtn.Text = "🎮 Browse Games"
-BrowseGameBtn.TextColor3 = Color3.fromRGB(130, 135, 155)
-BrowseGameBtn.TextSize = 11
-BrowseGameBtn.TextXAlignment = Enum.TextXAlignment.Left
-BrowseGameBtn.Parent = FooterContainer
-
-local DiscordBtn = Instance.new("TextButton")
-DiscordBtn.Name = "Discord"
-DiscordBtn.Size = UDim2.new(0, 90, 1, 0)
-DiscordBtn.Position = UDim2.new(1, 0, 0, 0)
-DiscordBtn.AnchorPoint = Vector2.new(1, 0)
-DiscordBtn.BackgroundTransparency = 1
-DiscordBtn.Font = Enum.Font.GothamMedium
-DiscordBtn.Text = "💬 Discord"
-DiscordBtn.TextColor3 = Color3.fromRGB(130, 135, 155)
-DiscordBtn.TextSize = 11
-DiscordBtn.TextXAlignment = Enum.TextXAlignment.Right
-DiscordBtn.Parent = FooterContainer
-
-DiscordBtn.MouseButton1Click:Connect(function()
-    copyToClipboard(Config.DiscordInvite)
-    StatusLabel.Text = "Discord invite link copied to clipboard!"
-end)
+PercentLabel.Parent = Card
 
 local function updateProgress(targetPercent, statusText)
-    local clamped = math.clamp(targetPercent, 0, 100)
+    local clamped = math.clamp(targetPercent or 0, 0, 100)
     PercentLabel.Text = math.floor(clamped) .. "%"
     if statusText then
         StatusLabel.Text = statusText
     end
-    TweenService:Create(ProgressFill, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    TweenService:Create(ProgressFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         Size = UDim2.new(clamped / 100, 0, 1, 0)
     }):Play()
 end
 
 local function playIntroAnimation()
-    TweenService:Create(BackgroundOverlay, TweenInfo.new(0.4), { BackgroundTransparency = 0.45 }):Play()
-    TweenService:Create(Card, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        BackgroundTransparency = 0.05,
+    TweenService:Create(BackgroundOverlay, TweenInfo.new(0.35), { BackgroundTransparency = 0.45 }):Play()
+    TweenService:Create(Card, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.08,
         Position = UDim2.new(0.5, 0, 0.5, 0)
     }):Play()
-    TweenService:Create(CardStroke, TweenInfo.new(0.4), { Transparency = 0.6 }):Play()
-    TweenService:Create(CardShadow, TweenInfo.new(0.4), { ImageTransparency = 0.4 }):Play()
+    TweenService:Create(CardStroke, TweenInfo.new(0.35), { Transparency = 0.6 }):Play()
+    TweenService:Create(CardShadow, TweenInfo.new(0.35), { ImageTransparency = 0.45 }):Play()
 
     Logo.Size = UDim2.new(0, 0, 0, 0)
     Logo.ImageTransparency = 1
-    task.wait(0.15)
-    TweenService:Create(Logo, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 64, 0, 64),
+    task.wait(0.1)
+    TweenService:Create(Logo, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 56, 0, 56),
         ImageTransparency = 0
     }):Play()
 
-    task.wait(0.2)
-    TweenService:Create(TitleLabel, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
-    TweenService:Create(SubtitleLabel, TweenInfo.new(0.35), { TextTransparency = 0.2 }):Play()
-    TweenService:Create(ProgressTrack, TweenInfo.new(0.35), { BackgroundTransparency = 0 }):Play()
-    TweenService:Create(StatusLabel, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
-    TweenService:Create(PercentLabel, TweenInfo.new(0.35), { TextTransparency = 0 }):Play()
+    task.wait(0.1)
+    TweenService:Create(ProgressTrack, TweenInfo.new(0.3), { BackgroundTransparency = 0 }):Play()
+    TweenService:Create(StatusLabel, TweenInfo.new(0.3), { TextTransparency = 0 }):Play()
+    TweenService:Create(PercentLabel, TweenInfo.new(0.3), { TextTransparency = 0 }):Play()
 
     task.spawn(function()
         while Logo and Logo.Parent do
-            TweenService:Create(Logo, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                Size = UDim2.new(0, 68, 0, 68)
+            TweenService:Create(Logo, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                Size = UDim2.new(0, 60, 0, 60)
             }):Play()
-            task.wait(1.2)
+            task.wait(1.1)
             if not Logo or not Logo.Parent then break end
-            TweenService:Create(Logo, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                Size = UDim2.new(0, 62, 0, 62)
+            TweenService:Create(Logo, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                Size = UDim2.new(0, 54, 0, 54)
             }):Play()
-            task.wait(1.2)
+            task.wait(1.1)
         end
     end)
 end
 
 local function playExitAnimation()
-    TweenService:Create(Card, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 380, 0, 230),
+    TweenService:Create(Card, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 180, 0, 100),
         BackgroundTransparency = 1
     }):Play()
-    TweenService:Create(CardStroke, TweenInfo.new(0.3), { Transparency = 1 }):Play()
-    TweenService:Create(CardShadow, TweenInfo.new(0.3), { ImageTransparency = 1 }):Play()
-    TweenService:Create(BackgroundOverlay, TweenInfo.new(0.35), { BackgroundTransparency = 1 }):Play()
-    task.wait(0.4)
+    TweenService:Create(Logo, TweenInfo.new(0.25), { ImageTransparency = 1 }):Play()
+    TweenService:Create(ProgressTrack, TweenInfo.new(0.25), { BackgroundTransparency = 1 }):Play()
+    TweenService:Create(StatusLabel, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
+    TweenService:Create(PercentLabel, TweenInfo.new(0.25), { TextTransparency = 1 }):Play()
+    TweenService:Create(CardStroke, TweenInfo.new(0.25), { Transparency = 1 }):Play()
+    TweenService:Create(CardShadow, TweenInfo.new(0.25), { ImageTransparency = 1 }):Play()
+    TweenService:Create(BackgroundOverlay, TweenInfo.new(0.3), { BackgroundTransparency = 1 }):Play()
+    task.wait(0.35)
     pcall(function() ScreenGui:Destroy() end)
 end
 
-local function showGameSelector(onGameSelected)
-    local Modal = Instance.new("Frame")
-    Modal.Name = "GameSelectorModal"
-    Modal.Size = UDim2.new(0, 420, 0, 320)
-    Modal.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Modal.AnchorPoint = Vector2.new(0.5, 0.5)
-    Modal.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
-    Modal.BorderSizePixel = 0
-    Modal.ZIndex = Card.ZIndex + 20
-    Modal.Parent = ScreenGui
-
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 16)
-    Corner.Parent = Modal
-
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Color = Config.AccentColor
-    Stroke.Thickness = 1.2
-    Stroke.Parent = Modal
-
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, -60, 0, 28)
-    Title.Position = UDim2.new(0, 20, 0, 16)
-    Title.BackgroundTransparency = 1
-    Title.Font = Enum.Font.GothamBold
-    Title.Text = "🎮 Supported Games"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextSize = 16
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.Parent = Modal
-
-    local Close = Instance.new("TextButton")
-    Close.Size = UDim2.new(0, 24, 0, 24)
-    Close.Position = UDim2.new(1, -34, 0, 16)
-    Close.BackgroundTransparency = 1
-    Close.Text = "✕"
-    Close.TextColor3 = Color3.fromRGB(150, 155, 175)
-    Close.TextSize = 14
-    Close.Font = Enum.Font.GothamBold
-    Close.Parent = Modal
-    Close.MouseButton1Click:Connect(function()
-        Modal:Destroy()
-    end)
-
-    local Scroll = Instance.new("ScrollingFrame")
-    Scroll.Size = UDim2.new(1, -40, 1, -64)
-    Scroll.Position = UDim2.new(0, 20, 0, 52)
-    Scroll.BackgroundTransparency = 1
-    Scroll.BorderSizePixel = 0
-    Scroll.ScrollBarThickness = 4
-    Scroll.ScrollBarImageColor3 = Config.AccentColor
-    Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    Scroll.Parent = Modal
-
-    local ListLayout = Instance.new("UIListLayout")
-    ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    ListLayout.Padding = UDim.new(0, 8)
-    ListLayout.Parent = Scroll
-
-    for _, g in ipairs(SupportedGames) do
-        local Item = Instance.new("Frame")
-        Item.Size = UDim2.new(1, -8, 0, 42)
-        Item.BackgroundColor3 = Color3.fromRGB(26, 30, 42)
-        Item.BorderSizePixel = 0
-        Item.Parent = Scroll
-
-        local ItemCorner = Instance.new("UICorner")
-        ItemCorner.CornerRadius = UDim.new(0, 8)
-        ItemCorner.Parent = Item
-
-        local NameLabel = Instance.new("TextLabel")
-        NameLabel.Size = UDim2.new(1, -110, 1, 0)
-        NameLabel.Position = UDim2.new(0, 12, 0, 0)
-        NameLabel.BackgroundTransparency = 1
-        NameLabel.Font = Enum.Font.GothamMedium
-        NameLabel.Text = g.Name .. ' <font color="rgb(29, 235, 169)">' .. (g.Version or "v2.0") .. '</font>'
-        NameLabel.RichText = true
-        NameLabel.TextColor3 = Color3.fromRGB(240, 242, 250)
-        NameLabel.TextSize = 13
-        NameLabel.TextXAlignment = Enum.TextXAlignment.Left
-        NameLabel.Parent = Item
-
-        local LaunchBtn = Instance.new("TextButton")
-        LaunchBtn.Size = UDim2.new(0, 80, 0, 28)
-        LaunchBtn.Position = UDim2.new(1, -88, 0.5, 0)
-        LaunchBtn.AnchorPoint = Vector2.new(0, 0.5)
-        LaunchBtn.BackgroundColor3 = Config.AccentColor
-        LaunchBtn.Font = Enum.Font.GothamBold
-        LaunchBtn.Text = "Launch"
-        LaunchBtn.TextColor3 = Color3.fromRGB(15, 20, 25)
-        LaunchBtn.TextSize = 12
-        LaunchBtn.BorderSizePixel = 0
-        LaunchBtn.Parent = Item
-
-        local LaunchCorner = Instance.new("UICorner")
-        LaunchCorner.CornerRadius = UDim.new(0, 6)
-        LaunchCorner.Parent = LaunchBtn
-
-        LaunchBtn.MouseButton1Click:Connect(function()
-            Modal:Destroy()
-            if onGameSelected then onGameSelected(g) end
-        end)
-    end
-end
-
-local loadAndExecuteGame = nil
-
-BrowseGameBtn.MouseButton1Click:Connect(function()
-    showGameSelector(function(selectedGame)
-        StatusLabel.Text = "Manually selected: " .. selectedGame.Name
-        task.spawn(function()
-            loadAndExecuteGame(selectedGame)
-        end)
-    end)
-end)
-
-function loadAndExecuteGame(matchedGame)
+local function loadAndExecuteGame(matchedGame)
     updateProgress(75, "Loading script for " .. matchedGame.Name .. "...")
 
     local scriptCode = nil
@@ -714,10 +507,8 @@ function loadAndExecuteGame(matchedGame)
         end)
     end
 
-
-
     updateProgress(100, "Ready! Starting " .. matchedGame.Name .. "...")
-    task.wait(0.6)
+    task.wait(0.65)
     playExitAnimation()
 
     local fn, loadErr = loadstring(scriptCode)
@@ -738,11 +529,11 @@ task.spawn(function()
     updateProgress(25, "Checking executor compatibility...")
     task.wait(0.3)
 
-    updateProgress(55, "Detecting active game (PlaceId: " .. game.PlaceId .. ")...")
+    updateProgress(55, "Detecting active game (PlaceId: " .. tostring(game.PlaceId) .. ")...")
     task.wait(0.35)
 
     local matchedGame = detectActiveGame()
-    updateProgress(75, "Matched: " .. matchedGame.Name .. "!")
+    updateProgress(75, "Matched: " .. tostring(matchedGame.Name) .. "!")
     task.wait(0.35)
 
     loadAndExecuteGame(matchedGame)
